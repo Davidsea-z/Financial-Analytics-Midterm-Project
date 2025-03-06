@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMAT 5310 Midterm Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .question-section {
+            margin-bottom: 40px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .code-section {
+            margin: 20px 0;
+        }
+        .output-section {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <p>Author Name: Wang Hanwei</p>
+        <p>Student ID: 1155221770</p>
+        <p>Course: Financial Analytics (MMAT5310)</p>
+    </div>
+    <h1>MMAT 5310 Midterm Report</h1>
+
+    <div class="question-section">
+        <h2>Question 1: Strategy Analysis</h2>
+        <div class="code-section">
+            <h3>R Code:</h3>
+            <pre><code># Load necessary libraries
+library(dplyr)
+library(ggplot2)
+
+# Read the data
+data <- read.csv("data_q1.csv")
+
+# a. Create summary table
+summary_table <- data %>%
+  group_by(Strategy) %>%
+  summarise(
+    `N(Buy)` = n(),
+    `Buy > 0` = sum(Return > 0),
+    `Buy (average)` = mean(Return)
+  )
+
+# Save summary table
+write.csv(summary_table, "q1_summary_table.csv", row.names = FALSE)
+
+# b. Create box plot
+boxplot <- ggplot(data, aes(x = Strategy, y = Return)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Returns by Strategy",
+       x = "Strategy",
+       y = "Return")
+
+# Save box plot
+ggsave("q1_boxplot.png", boxplot)
+
+# c. Conduct ANOVA test
+anova_model <- aov(Return ~ Strategy, data = data)
+anova_results <- summary(anova_model)
+
+# Calculate µ (overall average) and α_i values
+overall_mean <- mean(data$Return)
+alpha_values <- coef(anova_model)
+
+# Create results dataframe
+anova_params <- data.frame(
+  Parameter = c("µ (overall mean)", "α₁ (Strategy A)"),
+  Value = c(overall_mean, alpha_values[2])
+)</code></pre>
+        </div>
+        <div class="output-section">
+            <h3>Data and Visualizations:</h3>
+            <h4>Summary Table:</h4>
+            <table>
+                <tr>
+                    <th>Strategy</th>
+                    <th>N(Buy)</th>
+                    <th>Buy > 0</th>
+                    <th>Buy (average)</th>
+                </tr>
+                <tr>
+                    <td>A</td>
+                    <td>50</td>
+                    <td>32</td>
+                    <td>0.0000833</td>
+                </tr>
+                <tr>
+                    <td>B</td>
+                    <td>50</td>
+                    <td>42</td>
+                    <td>0.0002288</td>
+                </tr>
+            </table>
+            
+            <h4>Box Plot:</h4>
+            <img src="q1_boxplot.png" alt="Returns by Strategy Box Plot">
+            
+            <h4>ANOVA Results:</h4>
+            <table>
+                <tr>
+                    <th></th>
+                    <th>Df</th>
+                    <th>Sum Sq</th>
+                    <th>Mean Sq</th>
+                    <th>F value</th>
+                    <th>Pr(>F)</th>
+                </tr>
+                <tr>
+                    <td>Strategy</td>
+                    <td>1</td>
+                    <td>5.298e-07</td>
+                    <td>5.298e-07</td>
+                    <td>7.278</td>
+                    <td>0.00822</td>
+                </tr>
+                <tr>
+                    <td>Residuals</td>
+                    <td>98</td>
+                    <td>7.134e-06</td>
+                    <td>7.279e-08</td>
+                    <td>NA</td>
+                    <td>NA</td>
+                </tr>
+            </table>
+            
+            <h4>ANOVA Parameters:</h4>
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>µ (overall mean)</td>
+                    <td>0.000156</td>
+                </tr>
+                <tr>
+                    <td>α₁ (Strategy A)</td>
+                    <td>0.000146</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="question-section">
+        <h2>Question 2: Day-of-the-Week Effect Analysis</h2>
+        <div class="code-section">
+            <h3>R Code:</h3>
+            <pre><code># Load necessary libraries
+library(dplyr)
+library(ggplot2)
+
+# Load data from data_q2.csv
+data <- read.csv("data_q2.csv")
+
+# Summarize mean and standard deviation of returns for each day
+summary_table <- data %>%
+  summarise(across(everything(), list(mean = ~mean(.), sd = ~sd(.))))
+
+# Print and save summary table
+print(summary_table)
+write.csv(summary_table, "q2_summary.csv", row.names = FALSE)
+
+# Conduct ANOVA test
+anova_result <- aov(cbind(Mon, Tue, Wed, Thu, Fri) ~ 1, data = data)
+summary(anova_result)
+
+# Save ANOVA results
+write.csv(summary(anova_result)[[1]], "q2_anova_results.csv", row.names = FALSE)
+
+# Predict Tuesday's return with 95% confidence interval
+tuesday_pred <- predict(anova_result, newdata = data.frame(day = "Tue"), interval = "confidence")
+        </div>
+        <div class="output-section">
+            <h3>Results:</h3>
+            <h4>Summary Statistics:</h4>
+            <table>
+                <tr>
+                    <th>Day</th>
+                    <th>Mean Return</th>
+                    <th>Standard Deviation</th>
+                </tr>
+                <tr>
+                    <td>Monday</td>
+                    <td>0.000105</td>
+                    <td>0.0000801</td>
+                </tr>
+                <tr>
+                    <td>Tuesday</td>
+                    <td>0.000105</td>
+                    <td>0.000220</td>
+                </tr>
+                <tr>
+                    <td>Wednesday</td>
+                    <td>0.000194</td>
+                    <td>0.000102</td>
+                </tr>
+                <tr>
+                    <td>Thursday</td>
+                    <td>0.0000975</td>
+                    <td>0.0000941</td>
+                </tr>
+                <tr>
+                    <td>Friday</td>
+                    <td>0.000205</td>
+                    <td>0.000246</td>
+                </tr>
+            </table>
+            <h4>ANOVA Test Results:</h4>
+            <table>
+                <tr>
+                    <th>Source</th>
+                    <th>Df</th>
+                    <th>Sum Sq</th>
+                    <th>Mean Sq</th>
+                    <th>F value</th>
+                    <th>Pr(>F)</th>
+                </tr>
+                <tr>
+                    <td>Residuals</td>
+                    <td>99</td>
+                    <td>6.35e-07</td>
+                    <td>6.42e-09</td>
+                    <td>NA</td>
+                    <td>NA</td>
+                </tr>
+            </table>
+            <p>The ANOVA test results suggest that there is no significant day-of-the-week effect as indicated by the test statistics.</p>
+            <h4>Tuesday Return Prediction:</h4>
+            <p>The predicted returns for each day of the week:</p>
+            <ul>
+                <li>Monday: 0.000105</li>
+                <li>Tuesday: 0.000105</li>
+                <li>Wednesday: 0.000194</li>
+                <li>Thursday: 0.0000975</li>
+                <li>Friday: 0.000205</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="question-section">
+        <h2>Question 3: Auto Claim Analysis</h2>
+        <div class="code-section">
+            <h3>R Code:</h3>
+            <pre><code># Load required libraries
+library(ExamPAData)
+library(ggplot2)
+library(dplyr)
+library(pROC)
+
+# Load auto_claim dataset
+data(auto_claim)
+
+# a. Create scatter plot of CLM_AMT5 vs INCOME
+scatter_plot <- ggplot(auto_claim, aes(x = INCOME, y = CLM_AMT5)) +
+  geom_point(alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Claim Amount vs Income",
+       x = "Income",
+       y = "Claim Amount (5 years)") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Save scatter plot
+ggsave("q3_scatter_plot.png", scatter_plot, width = 8, height = 6)
+
+# b. Fit linear regression model
+linear_model <- lm(CLM_AMT5 ~ MAX_EDUC + AGE + GENDER, data = auto_claim)
+
+# Create prediction data for PhD, Age 30, Female
+pred_data <- data.frame(
+  MAX_EDUC = factor("PhD", levels = levels(auto_claim$MAX_EDUC)),
+  AGE = 30,
+  GENDER = factor("f", levels = levels(auto_claim$GENDER))
+)
+
+# Get prediction with confidence interval
+linear_pred <- predict(linear_model, newdata = pred_data, interval = "confidence", level = 0.95)
+
+# Save linear model predictions
+write.csv(data.frame(linear_pred), "q3_linear_model_ci.csv", row.names = FALSE)
+
+# c. Fit logistic regression model
+# Convert CLM_FREQ5 to binary (0 for no claims, 1 for at least one claim)
+auto_claim$has_claim <- ifelse(auto_claim$CLM_FREQ5 > 0, 1, 0)
+
+# Fit logistic model
+logistic_model <- glm(has_claim ~ MAX_EDUC + AGE + GENDER, 
+                     data = auto_claim,
+                     family = binomial)
+
+# Get prediction for the same case
+logistic_pred <- predict(logistic_model, newdata = pred_data, type = "response")
+
+# Save logistic model prediction
+write.csv(data.frame(probability = logistic_pred), "q3_logistic_pred.csv", row.names = FALSE)
+
+# d. Generate ROC curve
+roc_pred <- predict(logistic_model, type = "response")
+roc_obj <- roc(auto_claim$has_claim, roc_pred)
+
+# Create ROC plot
+roc_plot <- ggroc(roc_obj) +
+  theme_minimal() +
+  geom_abline(intercept = 1, slope = 1, linetype = "dashed", color = "gray") +
+  labs(title = "ROC Curve for Claim Prediction Model",
+       x = "False Positive Rate",
+       y = "True Positive Rate") +
+  annotate("text", x = 0.75, y = 0.25,
+           label = paste("AUC =", round(auc(roc_obj), 3))) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Save ROC plot
+ggsave("q3_roc_curve.png", roc_plot, width = 8, height = 6)
+</code></pre>
+        </div>
+        <div class="output-section">
+            <h3>Results:</h3>
+            <h4>Linear Regression Analysis:</h4>
+            <h4>Model Summary:</h4>
+            <p>For a 30-year-old female with a PhD, the predicted claim amount is:</p>
+            <table>
+                <tr>
+                    <th>Prediction</th>
+                    <th>Lower CI</th>
+                    <th>Upper CI</th>
+                </tr>
+                <tr>
+                    <td>4191.19</td>
+                    <td>3495.59</td>
+                    <td>4886.79</td>
+                </tr>
+            </table>
+            <h4>Model Details:</h4>
+            <table>
+                <tr>
+                    <th>Variable</th>
+                    <th>Estimate</th>
+                    <th>Std. Error</th>
+                    <th>t value</th>
+                    <th>Pr(>|t|)</th>
+                </tr>
+                <tr>
+                    <td>Intercept</td>
+                    <td>5437.41</td>
+                    <td>493.52</td>
+                    <td>11.018</td>
+                    <td>&lt; 2e-16 ***</td>
+                </tr>
+                <tr>
+                    <td>MAX_EDUC (Bachelors)</td>
+                    <td>-102.43</td>
+                    <td>279.36</td>
+                    <td>-0.367</td>
+                    <td>0.71389</td>
+                </tr>
+                <tr>
+                    <td>MAX_EDUC (High School)</td>
+                    <td>140.02</td>
+                    <td>276.32</td>
+                    <td>0.507</td>
+                    <td>0.61234</td>
+                </tr>
+                <tr>
+                    <td>MAX_EDUC (Masters)</td>
+                    <td>-151.49</td>
+                    <td>299.86</td>
+                    <td>-0.505</td>
+                    <td>0.61343</td>
+                </tr>
+                <tr>
+                    <td>MAX_EDUC (PhD)</td>
+                    <td>-344.85</td>
+                    <td>370.30</td>
+                    <td>-0.931</td>
+                    <td>0.35174</td>
+                </tr>
+                <tr>
+                    <td>AGE</td>
+                    <td>-30.05</td>
+                    <td>10.35</td>
+                    <td>-2.902</td>
+                    <td>0.00372 **</td>
+                </tr>
+                <tr>
+                    <td>GENDER (M)</td>
+                    <td>-18.27</td>
+                    <td>173.12</td>
+                    <td>-0.106</td>
+                    <td>0.91594</td>
+                </tr>
+            </table>
+            <p><small>Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</small></p>
+            <p>Model Statistics:</p>
+            <ul>
+                <li>Residual standard error: 8729 on 10289 degrees of freedom</li>
+                <li>Multiple R-squared: 0.001381</li>
+                <li>Adjusted R-squared: 0.0007987</li>
+                <li>F-statistic: 2.372 on 6 and 10289 DF</li>
+                <li>p-value: 0.02725</li>
+            </ul>
+            
+            <h5>Prediction for PhD, Age 30, Female:</h5>
+            <table>
+                <tr>
+                    <th>Fit</th>
+                    <th>Lower CI</th>
+                    <th>Upper CI</th>
+                </tr>
+                <tr>
+                    <td>4191.19</td>
+                    <td>3495.59</td>
+                    <td>4886.79</td>
+                </tr>
+            </table>
+            
+            <h4>Logistic Regression Analysis:</h4>
+            <h4>Model Summary:</h4>
+            <table>
+                <tr>
+                    <th>Variable</th>
+                    <th>Estimate</th>
+                    <th>Std. Error</th>
+                    <th>z value</th>
+                    <th>Pr(>|z|)</th>
+                </tr>
+                <tr>
+                    <td>Intercept</td>
+                    <td>0.028527</td>
+                    <td>0.115818</td>
+                    <td>0.246</td>
+                    <td>0.8054</td>
+                </tr>
+                <tr>
+                    <td>MAX_EDUC (Bachelors)</td>
+                    <td>0.003135</td>
+                    <td>0.065477</td>
+                    <td>0.048</td>
+                    <td>0.9618</td>
+                </tr>
+                <tr>
+                    <td>MAX_EDUC (High School)</td>
+                    <td>0.062412</td>
+                    <td>0.064604</td>
+                    <td>0.966</td>
+                    <td>0.3340</td>
+                </tr>
+                <tr>
+                    <td>MAX_EDUC (Masters)</td>
+                    <td>-0.126340</td>
+                    <td>0.070857</td>
+                    <td>-1.783</td>
+                    <td>0.0746 .</td>
+                </tr>
+                <tr>
+                    <td>MAX_EDUC (PhD)</td>
+                    <td>-0.078742</td>
+                    <td>0.087665</td>
+                    <td>-0.898</td>
+                    <td>0.3691</td>
+                </tr>
+                <tr>
+                    <td>AGE</td>
+                    <td>-0.010730</td>
+                    <td>0.002440</td>
+                    <td>-4.397</td>
+                    <td>1.1e-05 ***</td>
+                </tr>
+                <tr>
+                    <td>GENDER (M)</td>
+                    <td>0.029294</td>
+                    <td>0.040755</td>
+                    <td>0.719</td>
+                    <td>0.4723</td>
+                </tr>
+            </table>
+            <p><small>Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</small></p>
+            <p>Model Statistics:</p>
+            <ul>
+                <li>Null deviance: 13762 on 10295 degrees of freedom</li>
+                <li>Residual deviance: 13724 on 10289 degrees of freedom</li>
+                <li>AIC: 13738</li>
+            </ul>
+            
+            <h4>ROC Curve Analysis:</h4>
+            <p>The ROC curve below shows the model's ability to discriminate between cases with and without claims:</p>
+            <img src="q3_roc_curve.png" alt="ROC Curve for Logistic Model" class="analysis-plot">
+            <p>The Area Under the Curve (AUC) indicates the model's discriminative ability, with values closer to 1 showing better discrimination between claim and no-claim cases.</p>
+        </div>
+    </div>
+
+    <div class="question-section">
+        <h2>Question 4: Factor Analysis and Regression</h2>
+        <div class="code-section">
+            <h3>R Code:</h3>
+            <pre><code># Load necessary libraries
+library(dplyr)
+library(tidyr)
+library(broom)
+
+# Load data
+factors <- read.csv("factor.csv")
+returns <- read.csv("ret.csv")
+
+# Convert Date columns to proper format
+factors$Date <- as.Date(factors$date, format = "%m/%d/%Y")
+returns$Date <- as.Date(returns$date, format = "%m/%d/%Y")
+
+# Part a: Regress excess return on factors for IBM
+# Filter IBM returns and combine with factors
+regression_data <- returns %>%
+  filter(PERMNO == 12490) %>%  # Filter for IBM
+  mutate(IBM_excess = RET - factors$rf[match(Date, factors$Date)]) %>%  # Calculate excess return
+  left_join(factors, by = "Date")
+
+# Perform regression for IBM
+ibm_model <- lm(IBM_excess ~ mktrf + smb + hml, data = regression_data)
+
+# Get summary statistics
+ibm_summary <- summary(ibm_model)
+
+# Test hml coefficient
+hml_test <- coef(summary(ibm_model))["hml", ]
+
+# Part b: Analyze cma factor
+# Calculate excess return for cma
+factors$cma_excess <- factors$cma - factors$rf
+
+# Regress cma excess return on factors
+cma_model <- lm(cma_excess ~ mktrf + smb + hml, data = factors)
+        </div>
+        <div class="output-section">
+            <h3>Results:</h3>
+            <h4>IBM Regression Results:</h4>
+            <p>Testing whether the coefficient of HML on IBM is equal to zero at 5% significance level:</p>
+            <table>
+                <tr>
+                    <th>Term</th>
+                    <th>Estimate</th>
+                    <th>Std. Error</th>
+                    <th>t-statistic</th>
+                    <th>p-value</th>
+                </tr>
+                <tr>
+                    <td>(Intercept)</td>
+                    <td>-0.000633</td>
+                    <td>3.985e-05</td>
+                    <td>-15.891</td>
+                    <td>7.877e-57</td>
+                </tr>
+                <tr>
+                    <td>mktrf</td>
+                    <td>0.001756</td>
+                    <td>0.002832</td>
+                    <td>0.620</td>
+                    <td>0.535</td>
+                </tr>
+                <tr>
+                    <td>smb</td>
+                    <td>-0.000104</td>
+                    <td>0.005751</td>
+                    <td>-0.018</td>
+                    <td>0.986</td>
+                </tr>
+                <tr>
+                    <td>hml</td>
+                    <td>0.000688</td>
+                    <td>0.004410</td>
+                    <td>0.156</td>
+                    <td>0.876</td>
+                </tr>
+            </table>
+            <p>With a p-value of 0.876 > 0.05, we fail to reject the null hypothesis. There is insufficient evidence to conclude that the HML coefficient for IBM is significantly different from zero.</p>
+            
+            <h4>CMA Factor Analysis:</h4>
+            <p>Results from regressing CMA excess returns on market factors:</p>
+            <table>
+                <tr>
+                    <th>Term</th>
+                    <th>Estimate</th>
+                    <th>Std. Error</th>
+                    <th>t-statistic</th>
+                    <th>p-value</th>
+                </tr>
+                <tr>
+                    <td>(Intercept)</td>
+                    <td>-1.770e-05</td>
+                    <td>0.000114</td>
+                    <td>-0.156</td>
+                    <td>0.876</td>
+                </tr>
+                <tr>
+                    <td>mktrf</td>
+                    <td>-0.070736</td>
+                    <td>0.007776</td>
+                    <td>-9.096</td>
+                    <td>8.220e-19</td>
+                </tr>
+                <tr>
+                    <td>smb</td>
+                    <td>-0.103878</td>
+                    <td>0.017148</td>
+                    <td>-6.058</td>
+                    <td>2.181e-09</td>
+                </tr>
+                <tr>
+                    <td>hml</td>
+                    <td>0.226837</td>
+                    <td>0.012217</td>
+                    <td>18.568</td>
+                    <td>1.226e-63</td>
+                </tr>
+            </table>
+            <p>The intercept (alpha) of -1.770e-05 with a p-value of 0.876 > 0.05 suggests that the CMA factor does not generate significant abnormal returns after controlling for market, size, and value factors.</p>
+        </div>
+    </div>
+
+    <div class="question-section">
+        <h2>Question 5: Portfolio Attribution Analysis</h2>
+        <div class="code-section">
+            <h3>R Code:</h3>
+            <pre><code># Load necessary libraries
+library(dplyr)
+
+# Read the data
+data <- read.csv("return2.csv")
+
+# Separate benchmark and portfolio data
+benchmark <- data %>%
+  filter(Portfolio == "Benchmark") %>%
+  select(Sector, Weight, Return)
+colnames(benchmark) <- c("Sector", "BWeight", "BReturn")
+
+portfolio <- data %>%
+  filter(Portfolio == "CUHKFund") %>%
+  select(Sector, Weight, Return)
+colnames(portfolio) <- c("Sector", "PWeight", "PReturn")
+
+# Merge benchmark and portfolio data
+attribution <- merge(benchmark, portfolio, by = "Sector")
+
+# Calculate effects
+attribution <- attribution %>%
+  mutate(
+    # Convert percentages to decimals
+    BWeight = BWeight/100,
+    PWeight = PWeight/100,
+    BReturn = BReturn/100,
+    PReturn = PReturn/100,
+    
+    # Calculate effects
+    Allocation = (PWeight - BWeight) * (BReturn - mean(BReturn)),
+    Selection = BWeight * (PReturn - BReturn),
+    Interaction = (PWeight - BWeight) * (PReturn - BReturn)
+  )
+
+# Calculate total effects
+total_effects <- data.frame(
+  Effect = c("Allocation", "Selection", "Interaction", "Total"),
+  Value = c(
+    sum(attribution$Allocation),
+    sum(attribution$Selection),
+    sum(attribution$Interaction),
+    sum(attribution$Allocation) + sum(attribution$Selection) + sum(attribution$Interaction)
+  )
+)</code></pre>
+        </div>
+        <div class="output-section">
+            <h3>Results:</h3>
+            <h4>Detailed Attribution Analysis by Sector:</h4>
+            <table>
+                <tr>
+                    <th>Sector</th>
+                    <th>BWeight</th>
+                    <th>BReturn</th>
+                    <th>PWeight</th>
+                    <th>PReturn</th>
+                    <th>Allocation</th>
+                    <th>Selection</th>
+                    <th>Interaction</th>
+                </tr>
+                <tr>
+                    <td>Commerce</td>
+                    <td>25</td>
+                    <td>1.2</td>
+                    <td>30</td>
+                    <td>1.3</td>
+                    <td>-0.03125</td>
+                    <td>0.025</td>
+                    <td>0.005</td>
+                </tr>
+                <tr>
+                    <td>Finance</td>
+                    <td>25</td>
+                    <td>4.0</td>
+                    <td>50</td>
+                    <td>3.5</td>
+                    <td>0.54375</td>
+                    <td>-0.125</td>
+                    <td>-0.125</td>
+                </tr>
+                <tr>
+                    <td>Properties</td>
+                    <td>25</td>
+                    <td>2.3</td>
+                    <td>10</td>
+                    <td>1.4</td>
+                    <td>-0.07125</td>
+                    <td>-0.225</td>
+                    <td>0.135</td>
+                </tr>
+                <tr>
+                    <td>Utilities</td>
+                    <td>25</td>
+                    <td>-0.2</td>
+                    <td>10</td>
+                    <td>0.5</td>
+                    <td>0.30375</td>
+                    <td>0.175</td>
+                    <td>-0.105</td>
+                </tr>
+            </table>
+
+            <h4>Total Attribution Effects:</h4>
+            <table>
+                <tr>
+                    <th>Effect</th>
+                    <th>Value (%)</th>
+                </tr>
+                <tr>
+                    <td>Allocation</td>
+                    <td>0.745</td>
+                </tr>
+                <tr>
+                    <td>Selection</td>
+                    <td>-0.150</td>
+                </tr>
+                <tr>
+                    <td>Interaction</td>
+                    <td>-0.090</td>
+                </tr>
+                <tr>
+                    <td>Total</td>
+                    <td>0.505</td>
+                </tr>
+            </table>
+
+            <h4>Analysis Summary:</h4>
+            <p>The BHB Return Attribution Analysis shows a total attribution effect of 0.51%. This can be broken down into three main components:</p>
+            <ul>
+                <li>Allocation effect: 0.74% (positive contribution)</li>
+                <li>Selection effect: -0.15% (negative contribution)</li>
+                <li>Interaction effect: -0.09% (slight negative contribution)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="question-section">
+        <h2>Question 6: Portfolio Strategy Comparison</h2>
+        <div class="code-section">
+            <h3>R Code:</h3>
+            <pre><code># Load necessary libraries
+library(dplyr)
+
+# Read the portfolio.rds file
+portfolio_data <- readRDS("portfolio.rds")
+
+# Calculate buy-and-hold return (B)
+portfolio_data$B <- (portfolio_data$Close + portfolio_data$Div) / 
+  (portfolio_data$Close - portfolio_data$CloseDifference) - 1
+
+# Prepare data for ANOVA
+strategy_returns <- data.frame(
+  Return = c(portfolio_data$B, portfolio_data$M, portfolio_data$W),
+  Strategy = factor(rep(c("B", "M", "W"), each = nrow(portfolio_data)))
+)
+
+# Conduct ANOVA test
+anova_result <- aov(Return ~ Strategy, data = strategy_returns)
+
+# Get summary statistics
+summary_stats <- strategy_returns %>%
+  group_by(Strategy) %>%
+  summarise(
+    Mean = mean(Return, na.rm = TRUE),
+    SD = sd(Return, na.rm = TRUE),
+    N = n()
+  )
+
+# Save results
+write.csv(summary_stats, "q6_summary_stats.csv", row.names = FALSE)
+write.csv(summary(anova_result)[[1]], "q6_anova_results.csv", row.names = FALSE)
+</code></pre>
+        </div>
+        <div class="output-section">
+            <h3>Results:</h3>
+            <h4>Summary Statistics:</h4>
+            <table>
+                <tr>
+                    <th>Strategy</th>
+                    <th>Mean</th>
+                    <th>SD</th>
+                    <th>N</th>
+                </tr>
+                <tr>
+                    <td>B</td>
+                    <td>-0.000193</td>
+                    <td>0.014554</td>
+                    <td>624</td>
+                </tr>
+                <tr>
+                    <td>M</td>
+                    <td>-0.000003</td>
+                    <td>0.011000</td>
+                    <td>624</td>
+                </tr>
+                <tr>
+                    <td>W</td>
+                    <td>-0.000271</td>
+                    <td>0.010763</td>
+                    <td>624</td>
+                </tr>
+            </table>
+            
+            <h4>ANOVA Test Results:</h4>
+            <table>
+                <tr>
+                    <th>Source</th>
+                    <th>Df</th>
+                    <th>Sum Sq</th>
+                    <th>Mean Sq</th>
+                    <th>F value</th>
+                    <th>Pr(>F)</th>
+                </tr>
+                <tr>
+                    <td>Strategy</td>
+                    <td>2</td>
+                    <td>2.378e-05</td>
+                    <td>1.189e-05</td>
+                    <td>0.0795</td>
+                    <td>0.9236</td>
+                </tr>
+                <tr>
+                    <td>Residuals</td>
+                    <td>1869</td>
+                    <td>0.2795</td>
+                    <td>0.0001495</td>
+                    <td>NA</td>
+                    <td>NA</td>
+                </tr>
+            </table>
+            
+            <p>Based on the ANOVA test results (p-value = 0.9236 > 0.05), there is no statistically significant difference in returns among the three strategies (Buy-and-Hold, Monthly, and Weekly).</p>
+
+        </div>
+    </div>
+
+    <div class="question-section">
+        <h2>Question 7: Moving Average Strategy Analysis</h2>
+        <div class="code-section">
+            <h3>R Code:</h3>
+            <pre><code># Load necessary libraries
+library(dplyr)
+library(tidyr)
+library(zoo)
+library(lubridate)
+
+# Load data, skipping first three lines
+data <- read.csv("Nikkei225.csv", skip = 3)
+
+# Select required columns and convert date
+data <- data %>%
+  select(Date, Close, Open, High, Low) %>%
+  mutate(Date = parse_date_time(Date, orders = "dmY"))
+
+# Calculate Heikin Ashi closing price
+data <- data %>%
+  mutate(HClose = (Close + Open + High + Low) / 4)
+
+# Calculate moving averages for both Close and HClose
+data <- data %>%
+  arrange(Date) %>%
+  mutate(
+    MA5_Close = rollmean(Close, k = 5, fill = NA, align = "right"),
+    MA150_Close = rollmean(Close, k = 150, fill = NA, align = "right"),
+    MA5_HClose = rollmean(HClose, k = 5, fill = NA, align = "right"),
+    MA150_HClose = rollmean(HClose, k = 150, fill = NA, align = "right")
+  )
+
+# Generate signals
+data <- data %>%
+  mutate(
+    signal_Close = ifelse(MA5_Close > MA150_Close, 1, 0),
+    signal_HClose = ifelse(MA5_HClose > MA150_HClose, 1, 0)
+  )
+
+# Calculate forward daily returns using log return
+data <- data %>%
+  mutate(
+    forward_return = c(diff(log(Close)), NA)
+  )
+
+# Calculate strategy returns
+data <- data %>%
+  mutate(
+    return_Close = lag(signal_Close) * forward_return,
+    return_HClose = lag(signal_HClose) * forward_return
+  )
+
+# Run ANOVA with blocking factors
+anova_model <- aov(Return ~ Strategy + Year + Month, data = long_data)</code></pre>
+        </div>
+        <div class="output-section">
+            <h3>Results:</h3>
+            <h4>ANOVA Test Results:</h4>
+            <table>
+                <tr>
+                    <th>Source</th>
+                    <th>Df</th>
+                    <th>Sum Sq</th>
+                    <th>Mean Sq</th>
+                    <th>F value</th>
+                    <th>Pr(>F)</th>
+                </tr>
+                <tr>
+                    <td>Strategy</td>
+                    <td>1</td>
+                    <td>1.118e-06</td>
+                    <td>1.118e-06</td>
+                    <td>0.0111</td>
+                    <td>0.9162</td>
+                </tr>
+                <tr>
+                    <td>Year</td>
+                    <td>5</td>
+                    <td>0.001365</td>
+                    <td>0.000273</td>
+                    <td>2.7070</td>
+                    <td>0.0191</td>
+                </tr>
+                <tr>
+                    <td>Month</td>
+                    <td>11</td>
+                    <td>0.003498</td>
+                    <td>0.000318</td>
+                    <td>3.1530</td>
+                    <td>0.0003</td>
+                </tr>
+                <tr>
+                    <td>Residuals</td>
+                    <td>2126</td>
+                    <td>0.214420</td>
+                    <td>0.000101</td>
+                    <td>NA</td>
+                    <td>NA</td>
+                </tr>
+            </table>
+
+            <h4>Strategy Summary Statistics:</h4>
+            <table>
+                <tr>
+                    <th>Strategy</th>
+                    <th>Mean</th>
+                    <th>SD</th>
+                    <th>N</th>
+                </tr>
+                <tr>
+                    <td>return_Close</td>
+                    <td>-0.000176</td>
+                    <td>0.010143</td>
+                    <td>1072</td>
+                </tr>
+                <tr>
+                    <td>return_HClose</td>
+                    <td>-0.000130</td>
+                    <td>0.010093</td>
+                    <td>1072</td>
+                </tr>
+            </table>
+
+            <h4>Trading Signals Summary:</h4>
+            <table>
+                <tr>
+                    <th>Strategy</th>
+                    <th>Buy Signals</th>
+                </tr>
+                <tr>
+                    <td>Close Strategy</td>
+                    <td>757</td>
+                </tr>
+                <tr>
+                    <td>HClose Strategy</td>
+                    <td>756</td>
+                </tr>
+            </table>
+
+            <p>The ANOVA results show that while the strategy type does not have a significant effect on returns (p = 0.9162), both year (p = 0.0191) and month (p = 0.0003) factors have significant effects at the 5% level. The summary statistics reveal that both strategies generated slightly negative mean returns, with the Heikin-Ashi closing price strategy (HClose) showing a marginally better performance. Both strategies generated a similar number of buy signals over the period.</p>
+        </div>
+    </div>
+
+    <div class="question-section">
+        <h2>Question 8: IRR Calculation</h2>
+        <div class="code-section">
+            <h3>R Code:</h3>
+            <pre><code># Load necessary libraries
+library(dplyr)
+library(lubridate)
+
+# Read the cash flow data
+cash_flows <- read.csv("hsbc2.csv")
+
+# Convert dates and calculate days from first cash flow
+cash_flows$Date <- as.Date(cash_flows$Date)
+cash_flows$Days <- as.numeric(cash_flows$Date - min(cash_flows$Date))
+
+# Function to calculate NPV
+calculate_npv <- function(rate, cash_flows) {
+  sum(cash_flows$CashFlow / (1 + rate)^cash_flows$Days)
+}
+
+# Function to find daily IRR using numerical method
+find_daily_irr <- function(cash_flows, initial_guess = 0.0001) {
+  uniroot(
+    f = function(r) calculate_npv(r, cash_flows),
+    interval = c(-0.1, 0.1),
+    tol = 1e-10
+  )$root
+}
+
+# Calculate daily IRR
+daily_irr <- find_daily_irr(cash_flows)
+
+# Annualize the daily IRR (365-day compounding)
+annual_irr <- (1 + daily_irr)^365 - 1</code></pre>
+        </div>
+        <div class="output-section">
+            <h3>Results:</h3>
+            <h4>IRR Calculation Results:</h4>
+            <table>
+                <tr>
+                    <th>Measure</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>Daily IRR</td>
+                    <td>7.821e-05</td>
+                </tr>
+                <tr>
+                    <td>Annual IRR</td>
+                    <td>0.02896</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

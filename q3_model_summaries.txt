@@ -1,0 +1,52 @@
+Linear Regression Model Summary:
+
+Call:
+lm(formula = CLM_AMT5 ~ MAX_EDUC + AGE + GENDER, data = auto_claim)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+ -5078  -4096  -3724    621  53627 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)          5437.41     493.52  11.018  < 2e-16 ***
+MAX_EDUCBachelors    -102.43     279.36  -0.367  0.71389    
+MAX_EDUCHigh School   140.02     276.32   0.507  0.61234    
+MAX_EDUCMasters      -151.49     299.86  -0.505  0.61343    
+MAX_EDUCPhD          -344.85     370.30  -0.931  0.35174    
+AGE                   -30.05      10.35  -2.902  0.00372 ** 
+GENDERM               -18.27     173.12  -0.106  0.91594    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 8729 on 10289 degrees of freedom
+Multiple R-squared:  0.001381,	Adjusted R-squared:  0.0007987 
+F-statistic: 2.372 on 6 and 10289 DF,  p-value: 0.02725
+
+
+Logistic Regression Model Summary:
+
+Call:
+glm(formula = has_claim ~ MAX_EDUC + AGE + GENDER, family = binomial(link = "logit"), 
+    data = auto_claim)
+
+Coefficients:
+                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          0.028527   0.115818   0.246   0.8054    
+MAX_EDUCBachelors    0.003135   0.065477   0.048   0.9618    
+MAX_EDUCHigh School  0.062412   0.064604   0.966   0.3340    
+MAX_EDUCMasters     -0.126340   0.070857  -1.783   0.0746 .  
+MAX_EDUCPhD         -0.078742   0.087665  -0.898   0.3691    
+AGE                 -0.010730   0.002440  -4.397  1.1e-05 ***
+GENDERM              0.029294   0.040755   0.719   0.4723    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 13762  on 10295  degrees of freedom
+Residual deviance: 13724  on 10289  degrees of freedom
+AIC: 13738
+
+Number of Fisher Scoring iterations: 4
+

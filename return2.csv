@@ -1,0 +1,9 @@
+Sector,Portfolio,Weight,Return
+Finance,Benchmark,25,4.0
+Utilities,Benchmark,25,-0.2
+Properties,Benchmark,25,2.3
+Commerce,Benchmark,25,1.2
+Finance,CUHKFund,50,3.5
+Utilities,CUHKFund,10,0.5
+Properties,CUHKFund,10,1.4
+Commerce,CUHKFund,30,1.3

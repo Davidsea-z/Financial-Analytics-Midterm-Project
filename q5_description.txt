@@ -1,0 +1,7 @@
+BHB Return Attribution Analysis Results:
+1. Total attribution effect:0.51%
+2. Main components:
+   - Allocation effect:0.74%
+   - Selection effect:-0.15%
+   - Interaction effect:-0.09%
+
